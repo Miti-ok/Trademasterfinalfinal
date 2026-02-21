@@ -148,7 +148,7 @@ function makeArrowGeo() {
   return new THREE.ShapeGeometry(sh);
 }
 
-export default function TradeGlobe({ showHud = false, routeData = null }) {
+export default function TradeRouteGlobe({ showHud = false, routeData = null }) {
   const mountRef = useRef(null);
   const globeRef = useRef(null);
   const geoRef = useRef(null);

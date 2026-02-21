@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useAnalysis } from '../hooks/useAnalysis.js'
-import TradeGlobe from '../components/TradeGlobe.jsx'
+import TradeRouteGlobe from '../components/globe/TradeRouteGlobe.jsx'
 
 export default function Results() {
   const { analysis, tradeRoute } = useAnalysis()
@@ -11,7 +11,7 @@ export default function Results() {
       <section className="dashboard-hero">
         <div className="dashboard-frame">
           <div className="dashboard-map">
-            <TradeGlobe routeData={tradeRoute} />
+            <TradeRouteGlobe routeData={tradeRoute} />
           </div>
           <div className="dashboard-cta-row">
             <button className="dashboard-chip" type="button">
