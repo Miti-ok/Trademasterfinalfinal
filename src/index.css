@@ -266,7 +266,7 @@ body {
 }
 
 .dashboard-frame {
-  @apply w-full max-w-4xl rounded-[28px] p-10 shadow-2xl;
+  @apply w-full max-w-5xl rounded-[28px] p-10 shadow-2xl;
   background: rgba(255, 255, 255, 0.92);
 }
 
@@ -276,9 +276,12 @@ body {
 }
 
 .dashboard-map {
-  @apply relative flex min-h-[320px] flex-col items-center justify-center rounded-[22px] px-8 text-center;
-  background: #1f3fa8;
+  @apply relative flex w-full items-center justify-center rounded-[22px] text-center;
+  aspect-ratio: 16 / 9;
+  min-height: unset;
+  background: #0f1a4d;
   color: #f4f6ff;
+  overflow: hidden;
 }
 
 .dashboard-map p {
@@ -287,7 +290,7 @@ body {
 }
 
 .dashboard-chip {
-  @apply mt-6 rounded-full px-6 py-3 text-sm font-semibold;
+  @apply rounded-full px-6 py-3 text-sm font-semibold;
   background: rgba(255, 255, 255, 0.85);
   color: #1a1f3c;
 }
@@ -299,6 +302,10 @@ body {
 
 :root[data-theme='dark'] .dashboard-note {
   color: rgba(255, 255, 255, 0.7);
+}
+
+.dashboard-cta-row {
+  @apply mt-6 flex justify-center;
 }
 
 .stat-card {

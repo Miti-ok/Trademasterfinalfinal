@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useAnalysis } from '../hooks/useAnalysis.js'
+import TradeGlobe from '../components/TradeGlobe.jsx'
 
 export default function Results() {
   const { analysis } = useAnalysis()
@@ -10,18 +11,13 @@ export default function Results() {
       <section className="dashboard-hero">
         <div className="dashboard-frame">
           <div className="dashboard-map">
-            <p>
-              Interactive world map display. We will add the asset later. This map will highlight the
-              destination country and cycle through routes.
-            </p>
+            <TradeGlobe />
+          </div>
+          <div className="dashboard-cta-row">
             <button className="dashboard-chip" type="button">
-              Select country:
+              Change country
             </button>
           </div>
-          <p className="dashboard-note">
-            Create a dashboard with key metrics and graphs. For now, placeholders show how this page will
-            scroll with data, reports, and insights.
-          </p>
         </div>
       </section>
 
