@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+*.env
+globe_data.json
+venv/
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
