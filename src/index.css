@@ -145,6 +145,26 @@ body {
   transform: translateY(-1px);
 }
 
+.header-back {
+  @apply rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] transition;
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
+}
+
+.header-back:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.55);
+  transform: translateY(-1px);
+}
+
+:root[data-theme='light'] .header-back {
+  border-color: rgba(26, 31, 60, 0.25);
+}
+
+:root[data-theme='light'] .header-back:hover {
+  border-color: rgba(26, 31, 60, 0.45);
+}
+
 .header-controls {
   @apply flex items-center justify-end gap-3;
   margin-top: 0.85rem;
@@ -279,7 +299,7 @@ body {
   @apply relative flex w-full items-center justify-center rounded-[22px] text-center;
   aspect-ratio: 16 / 9;
   min-height: unset;
-  background: #0f1a4d;
+  background: #000000;
   color: #f4f6ff;
   overflow: hidden;
 }

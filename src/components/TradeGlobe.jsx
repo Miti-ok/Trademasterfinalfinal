@@ -148,7 +148,7 @@ function makeArrowGeo() {
   return new THREE.ShapeGeometry(sh);
 }
 
-export default function TradeGlobe({ showHud = false }) {
+export default function TradeGlobe({ showHud = false, routeData = null }) {
   const mountRef = useRef(null);
   const globeRef = useRef(null);
   const geoRef = useRef(null);
@@ -162,26 +162,38 @@ export default function TradeGlobe({ showHud = false }) {
   const fixedView = { lat: 0, lng: -35, altitude: 3.2 };
 
   useEffect(() => {
+    const normalize = (raw) =>
+      [...raw].sort((a, b) =>
+        a.role === "exporter" && b.role !== "exporter"
+          ? -1
+          : a.role !== "exporter" && b.role === "exporter"
+          ? 1
+          : 0
+      );
+
+    if (Array.isArray(routeData) && routeData.length >= 2) {
+      setTradeData(normalize(routeData));
+      setPhase("loading");
+      setCurrentIndex(-1);
+      setStatus("Loading…");
+      return;
+    }
+
     fetch("/test.json")
       .then((r) => {
         if (!r.ok) throw new Error(`Could not load /test.json (${r.status})`);
         return r.json();
       })
       .then((raw) => {
-        const sorted = [...raw].sort((a, b) =>
-          a.role === "exporter" && b.role !== "exporter"
-            ? -1
-            : a.role !== "exporter" && b.role === "exporter"
-            ? 1
-            : 0
-        );
-        setTradeData(sorted);
+        setTradeData(normalize(raw));
+        setPhase("loading");
+        setCurrentIndex(-1);
       })
       .catch((err) => {
         console.error("Globe: failed to load test.json —", err.message);
         setStatus("Error: could not load test.json from public/");
       });
-  }, []);
+  }, [routeData]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -200,16 +212,7 @@ export default function TradeGlobe({ showHud = false }) {
       .polygonAltitude(0.006)
       .polygonCapColor((d) => d.__cap || "rgba(255,255,255,0.03)")
       .polygonSideColor(() => "rgba(60,130,255,0.04)")
-      .polygonStrokeColor(() => "#1a3d88")
-      .labelsData([])
-      .labelLat((d) => d.lat)
-      .labelLng((d) => d.lng)
-      .labelText((d) => d.text)
-      .labelSize(0.6)
-      .labelDotRadius(0)
-      .labelColor((d) => d.color)
-      .labelResolution(2)
-      .labelAltitude(0);
+      .polygonStrokeColor(() => "#1a3d88");
 
     world.renderer().setClearColor(0x000000, 0);
     world.renderer().setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -284,9 +287,12 @@ export default function TradeGlobe({ showHud = false }) {
       exporter: { cap: "rgba(0,255,120,0.28)", label: "#00ff78" },
       importer: { cap: "rgba(0,160,255,0.28)", label: "#00b0ff" }
     };
+    const BASE_CAP = "rgba(255,255,255,0.03)";
     const ARC_MS = 2600;
     const PAUSE_MS = 4000;
     const MAX_PTS = 200;
+    const exporterCountry =
+      tradeData.find((entry) => entry.role === "exporter")?.country || null;
 
     function lockCamera() {
       world.controls().enabled = false;
@@ -318,16 +324,21 @@ export default function TradeGlobe({ showHud = false }) {
     function highlight(name, role) {
       features.forEach((f) => {
         const n = f.properties.ADMIN || f.properties.NAME || "";
-        f.__cap =
-          n.toLowerCase() === name.toLowerCase()
-            ? ROLE[role]?.cap
-            : "rgba(255,255,255,0.03)";
+        const lower = n.toLowerCase();
+        const currentMatch = lower === name.toLowerCase();
+        const exporterMatch =
+          exporterCountry && lower === exporterCountry.toLowerCase();
+
+        if (currentMatch) {
+          f.__cap = ROLE[role]?.cap || BASE_CAP;
+        } else if (exporterMatch) {
+          // Keep exporter highlighted during the whole sequence.
+          f.__cap = ROLE.exporter.cap;
+        } else {
+          f.__cap = BASE_CAP;
+        }
       });
       world.polygonsData([...features]);
-    }
-
-    function addLabel(lat, lng, text, color) {
-      world.labelsData([...world.labelsData(), { lat: lat + 3, lng, text, color }]);
     }
 
     const posBuf = new Float32Array(MAX_PTS * 3);
@@ -452,13 +463,6 @@ export default function TradeGlobe({ showHud = false }) {
       await lerpCam([fixedView.lng, fixedView.lat], firstLL, fixedView.altitude, 1.9, 2200);
       if (seq.stop) return;
 
-      addLabel(
-        fLat,
-        fLng,
-        `[${first.role === "exporter" ? "EXP" : "IMP"}] ${first.country}`,
-        ROLE[first.role]?.label || "#fff"
-      );
-
       await wait(800);
       if (seq.stop) return;
 
@@ -483,13 +487,6 @@ export default function TradeGlobe({ showHud = false }) {
 
         highlight(toE.country, toE.role);
         setCurrentIndex(i + 1);
-        addLabel(
-          toLat,
-          toLng,
-          `[${toE.role === "exporter" ? "EXP" : "IMP"}] ${toE.country}`,
-          ROLE[toE.role]?.label || "#fff"
-        );
-
         const arrivalAlt = 1.5 + arcAlt(1, 0.32) * 2.6;
         await lerpCam(toLL, toLL, arrivalAlt, 1.75, 500);
         if (seq.stop) return;
@@ -546,6 +543,26 @@ export default function TradeGlobe({ showHud = false }) {
           transform: "translate(-50%, -40%) scale(1)"
         }}
       />
+
+      {cur && (
+        <div
+          style={{
+            position: "absolute",
+            top: 14,
+            left: 14,
+            padding: "6px 10px",
+            borderRadius: 8,
+            background: "rgba(0, 0, 0, 0.55)",
+            color: "#e9f2ff",
+            fontSize: 12,
+            fontWeight: 600,
+            letterSpacing: "0.04em",
+            pointerEvents: "none"
+          }}
+        >
+          {cur.country}
+        </div>
+      )}
 
       {showHud && (
         <>

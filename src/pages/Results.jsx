@@ -3,7 +3,7 @@ import { useAnalysis } from '../hooks/useAnalysis.js'
 import TradeGlobe from '../components/TradeGlobe.jsx'
 
 export default function Results() {
-  const { analysis } = useAnalysis()
+  const { analysis, tradeRoute } = useAnalysis()
   const confidence = useMemo(() => Math.round((analysis?.confidence || 0.82) * 100), [analysis])
 
   return (
@@ -11,7 +11,7 @@ export default function Results() {
       <section className="dashboard-hero">
         <div className="dashboard-frame">
           <div className="dashboard-map">
-            <TradeGlobe />
+            <TradeGlobe routeData={tradeRoute} />
           </div>
           <div className="dashboard-cta-row">
             <button className="dashboard-chip" type="button">

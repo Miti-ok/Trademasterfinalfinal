@@ -8,7 +8,8 @@ const initialState = {
   tariffSummary: null,
   riskScore: null,
   mapFlow: null,
-  report: null
+  report: null,
+  tradeRoute: null
 }
 
 export const AnalysisProvider = ({ children }) => {
@@ -49,6 +50,10 @@ export const AnalysisProvider = ({ children }) => {
     setState((prev) => ({ ...prev, report }))
   }, [])
 
+  const setTradeRoute = useCallback((tradeRoute) => {
+    setState((prev) => ({ ...prev, tradeRoute }))
+  }, [])
+
   const reset = useCallback(() => {
     setState(initialState)
     setError(null)
@@ -65,9 +70,10 @@ export const AnalysisProvider = ({ children }) => {
       updateMaterials,
       updateResults,
       setReport,
+      setTradeRoute,
       reset
     }),
-    [state, loading, error, setAnalysisPayload, updateMaterials, updateResults, setReport, reset]
+    [state, loading, error, setAnalysisPayload, updateMaterials, updateResults, setReport, setTradeRoute, reset]
   )
 
   return <AnalysisContext.Provider value={value}>{children}</AnalysisContext.Provider>

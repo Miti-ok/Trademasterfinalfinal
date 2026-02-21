@@ -3,15 +3,35 @@ import ProductInputForm from '../components/ProductInputForm.jsx'
 import ErrorState from '../components/ErrorState.jsx'
 import LoadingSpinner from '../components/LoadingSpinner.jsx'
 import { useAnalysis } from '../hooks/useAnalysis.js'
+import { countries } from '../constants/countries.js'
 
 export default function NewAnalysis() {
   const navigate = useNavigate()
-  const { loading, error, reset } = useAnalysis()
+  const { loading, error, reset, setTradeRoute } = useAnalysis()
+
+  const countryNameByCode = (code) =>
+    countries.find((country) => country.code === code)?.name || code
 
   const handleSubmit = async (payload) => {
     if (!payload) {
       return
     }
+    const exporter = countryNameByCode(payload.manufacturing_country)
+    const importer = countryNameByCode(payload.destination_country)
+    setTradeRoute([
+      {
+        country: exporter,
+        role: 'exporter',
+        material: payload.product_name || 'Trade shipment',
+        hs_code: '0000.00'
+      },
+      {
+        country: importer,
+        role: 'importer',
+        material: payload.product_name || 'Trade shipment',
+        hs_code: '0000.00'
+      }
+    ])
     navigate('/results')
   }
 
